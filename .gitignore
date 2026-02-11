@@ -209,6 +209,8 @@ __marimo__/
 
 # --- My Project Data ---
 data/raw/
+!data/raw/*.csv
+
 models/
 
 # Ignore Heavy Model Weights
