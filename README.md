@@ -1,10 +1,14 @@
 Facial Expression Recognition (FER) using Deep Learning
 K. N. Toosi University of Technology - Artificial Intelligence Course Project
 
-📝 Project Overview
+---
+
+_Project Overview_
 This project aims to design and implement a complete intelligent system for detecting human emotions from facial images. Using the FER2013 dataset and a Convolutional Neural Network (CNN), the model classifies facial expressions into 7 categories (Angry, Disgust, Fear, Happy, Sad, Surprise, Neutral).
 
-🏗 Modular Project Structure
+---
+
+_Modular Project Structure_
 Following the industrial standards required by the course, the project is organized as follows:
 
 ├── data/
@@ -25,15 +29,17 @@ Following the industrial standards required by the course, the project is organi
 ├── README.md # Full project documentation
 └── requirements.txt # Environment dependencies
 
-📊 Phase 1: Data Analysis & Preprocessing
+---
 
-EDA: Detailed analysis of class distribution to handle label imbalance.
+_Phase 1: Data Analysis & Preprocessing_
 
-Visualizations: Contains at least 6 distinct plots including sample images and frequency histograms.
+- EDA: Detailed analysis of class distribution to handle label imbalance.
 
-Preprocessing: Includes Resizing (48x48), Normalization, and Data Augmentation (Rotation, Zoom, Horizontal Flip) to improve generalization
+- Visualizations: Contains at least 6 distinct plots including sample images and frequency histograms.
 
-🧠 Phase 2: Model Implementation & Training
+- Preprocessing: Includes Resizing (48x48), Normalization, and Data Augmentation (Rotation, Zoom, Horizontal Flip) to improve generalization
+
+_Phase 2: Model Implementation & Training_
 
 - Architecture: A modular CNN baseline with Batch Normalization and Dropout layers.
 
@@ -41,7 +47,9 @@ Preprocessing: Includes Resizing (48x48), Normalization, and Data Augmentation (
 
 - Optimization: Hyperparameter tuning of learning rates and optimizers (Adam/SGD).
 
-🧪 Evaluation
+---
+
+_Evaluation_
 The model is evaluated based on standard metrics:
 
 - Accuracy & F1-Score.
@@ -50,23 +58,25 @@ The model is evaluated based on standard metrics:
 
 - Error Analysis: Identifying "Hard Examples" where the model fails
 
-🚀 Installation & Usage
+---
+
+_Installation & Usage_
 1- Clone the repository:
 
-" git clone https://github.com/SoroushSoleimani/Facial-Expression-Recognition.git "
+# " git clone https://github.com/SoroushSoleimani/Facial-Expression-Recognition.git "
 
 2- Install dependencies:
 
-" pip install -r requirements.txt "
+# " pip install -r requirements.txt "
 
 3- Run Training:
 
-" python src/training/train.py "
+# " python src/training/train.py "
 
 4- Run Evaluation:
 
-" python src/evaluation/evaluate.py "
+## " python src/evaluation/evaluate.py "
 
-💻 Interactive Demo
+_Interactive Demo_
 
 A live demo is provided using Gradio/Streamlit, allowing users to upload images or use a webcam for real-time emotion detection.
