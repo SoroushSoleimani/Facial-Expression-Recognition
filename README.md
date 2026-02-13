@@ -66,3 +66,7 @@ The model is evaluated based on standard metrics:
 4- Run Evaluation:
 
 " python src/evaluation/evaluate.py "
+
+💻 Interactive Demo
+
+A live demo is provided using Gradio/Streamlit, allowing users to upload images or use a webcam for real-time emotion detection.
