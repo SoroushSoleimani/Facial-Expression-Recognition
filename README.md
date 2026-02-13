@@ -32,3 +32,11 @@ EDA: Detailed analysis of class distribution to handle label imbalance.
 Visualizations: Contains at least 6 distinct plots including sample images and frequency histograms.
 
 Preprocessing: Includes Resizing (48x48), Normalization, and Data Augmentation (Rotation, Zoom, Horizontal Flip) to improve generalization
+
+🧠 Phase 2: Model Implementation & Training
+
+Architecture: A modular CNN baseline with Batch Normalization and Dropout layers.
+
+Training: Monitored using Loss and Accuracy curves to detect Overfitting/Underfitting.
+
+Optimization: Hyperparameter tuning of learning rates and optimizers (Adam/SGD).
