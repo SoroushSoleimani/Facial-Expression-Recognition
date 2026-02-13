@@ -7,21 +7,3 @@ This project aims to design and implement a complete intelligent system for dete
 
 🏗 Modular Project Structure
 Following the industrial standards required by the course, the project is organized as follows:
-
-├── data/
-│ ├── raw/ # Original FER2013 dataset [cite: 248]
-│ └── processed/ # Preprocessed and normalized images [cite: 248]
-├── notebooks/
-│ ├── EDA.ipynb # Exploratory Data Analysis & Visualizations [cite: 257]
-│ └── experiments.ipynb # Initial model testing and prototyping [cite: 248]
-├── src/
-│ ├── preprocessing/ # Data augmentation and cleaning scripts [cite: 262]
-│ ├── models/ # CNN Architecture definitions [cite: 262]
-│ ├── training/ # Training loops and early stopping logic [cite: 262]
-│ └── evaluation/ # Confusion matrix and metric reports [cite: 262]
-├── results/
-│ ├── charts/ # Accuracy/Loss curves [cite: 248]
-│ └── metrics/ # Evaluation reports (F1-score, Precision, Recall) [cite: 248]
-├── models/ # Saved model weights (.h5/.pt) - [Gitignored] [cite: 248, 249]
-├── README.md # Full project documentation [cite: 242]
-└── requirements.txt # Environment dependencies [cite: 248]
