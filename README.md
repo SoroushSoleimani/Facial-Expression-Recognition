@@ -49,3 +49,20 @@ The model is evaluated based on standard metrics:
 - Confusion Matrix to analyze misclassified emotions.
 
 - Error Analysis: Identifying "Hard Examples" where the model fails
+
+🚀 Installation & Usage
+1- Clone the repository:
+
+" git clone https://github.com/SoroushSoleimani/Facial-Expression-Recognition.git "
+
+2- Install dependencies:
+
+" pip install -r requirements.txt "
+
+3- Run Training:
+
+" python src/training/train.py "
+
+4- Run Evaluation:
+
+" python src/evaluation/evaluate.py "
