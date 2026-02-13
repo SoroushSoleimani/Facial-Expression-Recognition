@@ -15,6 +15,9 @@ K. N. Toosi University of Technology - Artificial Intelligence Course Project
 - [Performance & Results](#Performance_&_Results)
 - [Web Interface (Demo)](<#Web_Interface_(Demo)>)
 - [Monitoring & Logging](#Monitoring_&_Logging)
+- [Development](#Development)
+- [Important Notes](#Important_Notes)
+- [Contributing](#Contributing)
 
 ## Overview
 
@@ -147,3 +150,65 @@ We utilize **TensorBoard** for real-time monitoring of:
 - Training vs. Validation Loss
 - Class-wise Accuracy
 - Weight distribution and Gradients
+
+## Development
+
+### Using Makefile
+
+```bash
+make install      # Install dependencies
+make install-dev  # Install with dev tools
+make run          # Run EDA
+make test         # Run tests
+make clean        # Clean generated files
+make format       # Format code with black
+make lint         # Run linters
+```
+
+## Important_Notes
+
+### Data Leakage Prevention
+
+The `duration` variable is **strictly removed** during preprocessing. This variable represents call duration, which is only known after a call is completed. Including it would create unrealistic performance metrics.
+
+### Model Compatibility
+
+- Models trained with SMOTE are **pipelines** that expect preprocessed input
+- Regular models expect **preprocessed input** (from ColumnTransformer)
+- All models use the same preprocessor saved in `src/models/preprocessor.pkl`
+
+### File Paths
+
+All paths in the project are relative to the project root. Ensure you run commands from the project root directory.
+
+## Contributing
+
+Contributions are welcome! Please follow these guidelines:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Run tests (`pytest tests/ -v`)
+5. Run code quality checks (`make format lint`)
+6. Commit your changes (`git commit -m 'Add amazing feature'`)
+7. Push to the branch (`git push origin feature/amazing-feature`)
+8. Open a Pull Request
+
+### Development Setup
+
+```bash
+# Clone repository
+git clone <repository-url>
+cd AI-FinalProject-MHM-POWER
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+
+# Install dependencies
+pip install -r requirements.txt
+pip install -e .  # Install in development mode
+
+# Run tests
+pytest tests/ -v
+```
