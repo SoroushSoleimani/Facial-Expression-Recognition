@@ -24,3 +24,11 @@ Following the industrial standards required by the course, the project is organi
 ├── models/ # Saved model weights (.h5/.pt) - [Gitignored]
 ├── README.md # Full project documentation
 └── requirements.txt # Environment dependencies
+
+📊 Phase 1: Data Analysis & Preprocessing
+
+EDA: Detailed analysis of class distribution to handle label imbalance.
+
+Visualizations: Contains at least 6 distinct plots including sample images and frequency histograms.
+
+Preprocessing: Includes Resizing (48x48), Normalization, and Data Augmentation (Rotation, Zoom, Horizontal Flip) to improve generalization
