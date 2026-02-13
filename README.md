@@ -6,17 +6,15 @@ K. N. Toosi University of Technology - Artificial Intelligence Course Project
 
 ## Table of Contents
 
-[Overview](#overview)
-[Features](#Features)
-[Project Structure](#Project_Structure)
-[Installation](#Installation)
-[Model Architecture](#Model_Architecture)
-[Evaluation](#Evaluation)
-[Performance & Results](#Performance_&_Results)
-[Web Interface (Demo)](<#Web_Interface_(Demo)>)
-[Monitoring & Logging](#Monitoring_&_Logging)
-
----
+- [Overview](#overview)
+- [Features](#Features)
+- [Project Structure](#Project_Structure)
+- [Installation](#Installation)
+- [Model Architecture](#Model_Architecture)
+- [Evaluation](#Evaluation)
+- [Performance & Results](#Performance_&_Results)
+- [Web Interface (Demo)](<#Web_Interface_(Demo)>)
+- [Monitoring & Logging](#Monitoring_&_Logging)
 
 ## Overview
 
