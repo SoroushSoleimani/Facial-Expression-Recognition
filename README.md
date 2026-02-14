@@ -2,7 +2,7 @@
 
 K. N. Toosi University of Technology - Artificial Intelligence Course Project
 
-## A comprehensive deep learning project for real-time facial emotion detection using the **FERPlus** dataset. This project implements a complete Computer Vision pipeline, from advanced image preprocessing to model deployment via an interactive interface.
+### A comprehensive deep learning project for real-time facial emotion detection using the **FERPlus** dataset. This project implements a complete Computer Vision pipeline, from advanced image preprocessing to model deployment via an interactive interface.
 
 ## Table of Contents
 
