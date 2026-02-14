@@ -121,12 +121,12 @@ The model is evaluated based on standard metrics:
 
 ## Performance\_&_Results
 
-| Emotion,Precision,Recall,F1-Score |
-| --------------------------------- | ---- | ---- | ---- |
-| Happy                             | 0.89 | 0.91 | 0.90 |
-| Sad                               | 0.72 | 0.68 | 0.70 |
-| Angry                             | 0.75 | 0.70 | 0.72 |
-| Overall Accuracy                  |      |      | ~XX% |
+| Emotion          | Precision | Recall | F1-Score |
+| ---------------- | --------- | ------ | -------- |
+| Happy            | 0.89      | 0.91   | 0.90     |
+| Sad              | 0.72      | 0.68   | 0.70     |
+| Angry            | 0.75      | 0.70   | 0.72     |
+| Overall Accuracy |           |        | ~XX%     |
 
 ## Demo
 
