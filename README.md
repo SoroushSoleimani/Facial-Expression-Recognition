@@ -13,7 +13,7 @@ K. N. Toosi University of Technology - Artificial Intelligence Course Project
 - [Model Architecture](#Model_Architecture)
 - [Evaluation](#Evaluation)
 - [Performance & Results](#Performance_&_Results)
-- [Web Interface (Demo)](<#Web_Interface_(Demo)>)
+- [Web Interface (Demo)](#Demo)
 - [Monitoring & Logging](#Monitoring_&_Logging)
 - [Development](#Development)
 - [Important Notes](#Important_Notes)
@@ -132,7 +132,7 @@ The model is evaluated based on standard metrics:
 | Angry                             | 0.75 | 0.70 | 0.72 |
 | Overall Accuracy                  |      |      | ~XX% |
 
-## Web*Interface*(Demo)
+## Demo
 
 The project includes an interactive web interface built with **Gradio**.
 To launch the live demo:
