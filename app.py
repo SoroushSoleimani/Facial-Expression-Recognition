@@ -20,6 +20,8 @@ st.markdown("""
     .main-header { font-size: 2rem; font-weight: bold; text-align: center; color: #31333F; margin-bottom: 20px;}
     [data-testid="stMetricValue"] { font-size: 1.8rem !important; color: #4F8BF9; }
     .stSelectbox { margin-bottom: 15px; }
+    /* استایل برای زیباتر کردن دکمه‌ها */
+    div.stButton > button { width: 100%; border-radius: 10px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -29,16 +31,68 @@ EMOTION_LABELS = {
     6: 'Sad', 7: 'Surprise'
 }
 
+# --- توابع Grad-CAM ---
+def get_last_conv_layer_name(model):
+    for layer in reversed(model.layers):
+        if 'conv' in layer.name.lower():
+            return layer.name
+    return None
+
+def make_gradcam_heatmap(img_array, model, last_conv_layer_name, pred_index=None):
+    grad_model = None
+    try:
+        grad_model = tf.keras.models.Model(
+            inputs=model.inputs,
+            outputs=[model.get_layer(last_conv_layer_name).output, model.output]
+        )
+    except Exception:
+        try:
+            new_input = tf.keras.Input(shape=(48, 48, 1))
+            x = new_input
+            target_conv_output = None
+            for layer in model.layers:
+                x = layer(x)
+                if layer.name == last_conv_layer_name:
+                    target_conv_output = x
+            if target_conv_output is not None:
+                grad_model = tf.keras.models.Model(inputs=new_input, outputs=[target_conv_output, x])
+        except:
+            return None
+
+    if grad_model is None: return None
+
+    with tf.GradientTape() as tape:
+        last_conv_layer_output, preds = grad_model(img_array)
+        if pred_index is None:
+            pred_index = tf.argmax(preds[0])
+        class_channel = preds[:, pred_index]
+
+    grads = tape.gradient(class_channel, last_conv_layer_output)
+    pooled_grads = tf.reduce_mean(grads, axis=(0, 1, 2))
+    
+    last_conv_layer_output = last_conv_layer_output[0]
+    heatmap = last_conv_layer_output @ pooled_grads[..., tf.newaxis]
+    heatmap = tf.squeeze(heatmap)
+    heatmap = tf.maximum(heatmap, 0) / tf.math.reduce_max(heatmap)
+    return heatmap.numpy()
+
 @st.cache_resource
 def load_resources(model_name):
     model_path = os.path.join("models", model_name)
     cascade_path = cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
     try:
         model = tf.keras.models.load_model(model_path)
+        try:
+            dummy = np.zeros((1, 48, 48, 1))
+            model.predict(dummy, verbose=0)
+        except: pass
+        
         face_cascade = cv2.CascadeClassifier(cascade_path)
-        return model, face_cascade, True
+        last_layer_name = get_last_conv_layer_name(model)
+        
+        return model, face_cascade, last_layer_name, True
     except Exception as e:
-        return None, None, str(e)
+        return None, None, None, str(e)
 
 def preprocess_image(roi_gray):
     try:
@@ -93,10 +147,15 @@ def main():
         )
         
         st.divider()
+        
+        # تغییر اصلی اینجاست: استفاده از st.toggle بجای st.checkbox
+        # این دکمه ظاهر شیک‌تری دارد (مثل دکمه روشن/خاموش آیفون)
+        show_heatmap = st.toggle("Enable Saliency Map (Heatmap)", value=True)
+        
         st.info(f"Active Model: {selected_model_file.replace('.keras', '')}\n\nInterval: Every {analysis_interval}s")
 
     if selected_model_file:
-        model, face_cascade, status = load_resources(selected_model_file)
+        model, face_cascade, last_layer_name, status = load_resources(selected_model_file)
         if status is not True:
             st.error(status)
             return
@@ -115,20 +174,40 @@ def main():
             col_img, col_res = st.columns([1, 1.2])
             
             gray = cv2.cvtColor(input_image, cv2.COLOR_RGB2GRAY) if len(input_image.shape) == 3 else input_image
+            
+            if len(input_image.shape) == 3:
+                img_rgb = input_image.copy()
+            else:
+                img_rgb = cv2.cvtColor(input_image, cv2.COLOR_GRAY2RGB)
+
             faces = face_cascade.detectMultiScale(gray, 1.1, 4, minSize=(30, 30))
             
-            final_img = input_image.copy()
+            final_img = img_rgb.copy()
             preds = {}
             
             for (x, y, w, h) in faces:
-                roi = gray[y:y+h, x:x+w]
-                inp = preprocess_image(roi)
+                roi_gray = gray[y:y+h, x:x+w]
+                roi_color = final_img[y:y+h, x:x+w]
+                inp = preprocess_image(roi_gray)
+                
                 if inp is not None:
                     p = model.predict(inp, verbose=0)[0]
                     if not preds:
                          for i, val in enumerate(p): preds[EMOTION_LABELS[i]] = float(val)
                     
                     best = np.argmax(p)
+                    
+                    # لاجیک هیت‌مپ فقط اگر دکمه Toggle روشن باشد اجرا می‌شود
+                    if show_heatmap and last_layer_name:
+                        heatmap = make_gradcam_heatmap(inp, model, last_layer_name)
+                        if heatmap is not None:
+                            heatmap = np.uint8(255 * heatmap)
+                            heatmap = cv2.applyColorMap(heatmap, cv2.COLORMAP_JET)
+                            heatmap = cv2.cvtColor(heatmap, cv2.COLOR_BGR2RGB)
+                            heatmap = cv2.resize(heatmap, (w, h))
+                            roi_mixed = cv2.addWeighted(roi_color, 0.6, heatmap, 0.4, 0)
+                            final_img[y:y+h, x:x+w] = roi_mixed
+
                     color = (0, 255, 0) if best == 4 else (255, 0, 0)
                     cv2.rectangle(final_img, (x, y), (x+w, y+h), color, 3)
                     cv2.putText(final_img, EMOTION_LABELS[best], (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
@@ -153,7 +232,8 @@ def main():
         col_cam, col_stats = st.columns([1.5, 1])
         
         with col_cam:
-            run = st.checkbox("Start Camera", value=False)
+            # تغییر: استفاده از Toggle برای دکمه دوربین هم جذاب است
+            run = st.toggle("Start Camera", value=False) 
             image_placeholder = st.empty()
             
         with col_stats:
@@ -166,20 +246,22 @@ def main():
             last_analysis_time = time.time() - (analysis_interval + 1) 
             cached_preds = {}
             cached_faces = []
+            cached_heatmaps = []
             
             while run:
                 ret, frame = cap.read()
                 if not ret: break
                 
+                frame = cv2.flip(frame, 1)
                 frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 current_time = time.time()
                 time_diff = current_time - last_analysis_time
                 
                 progress_val = min(time_diff / analysis_interval, 1.0)
                 if progress_val < 1.0:
-                     timer_bar.progress(progress_val, text=f"Next Analysis in {analysis_interval - time_diff:.1f}s...")
+                      timer_bar.progress(progress_val, text=f"Next Analysis in {analysis_interval - time_diff:.1f}s...")
                 else:
-                     timer_bar.progress(1.0, text="Analyzing...")
+                      timer_bar.progress(1.0, text="Analyzing...")
 
                 if time_diff > analysis_interval:
                     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -189,6 +271,8 @@ def main():
                     found_face = False
                     
                     cached_faces = faces
+                    cached_heatmaps = []
+                    
                     for (x, y, w, h) in faces:
                         roi = gray[y:y+h, x:x+w]
                         inp = preprocess_image(roi)
@@ -197,10 +281,24 @@ def main():
                             for i, val in enumerate(p): new_preds[EMOTION_LABELS[i]] = float(val)
                             cached_preds = new_preds
                             found_face = True
+                            
+                            if show_heatmap and last_layer_name:
+                                hm = make_gradcam_heatmap(inp, model, last_layer_name)
+                                if hm is not None:
+                                    hm = np.uint8(255 * hm)
+                                    hm = cv2.applyColorMap(hm, cv2.COLORMAP_JET)
+                                    hm = cv2.cvtColor(hm, cv2.COLOR_BGR2RGB)
+                                    hm = cv2.resize(hm, (w, h))
+                                    cached_heatmaps.append(hm)
+                                else:
+                                    cached_heatmaps.append(None)
+                            else:
+                                cached_heatmaps.append(None)
                             break 
                     
                     if not found_face:
                         cached_faces = []
+                        cached_heatmaps = []
                         inp = preprocess_image(gray)
                         if inp is not None:
                             p = model.predict(inp, verbose=0)[0]
@@ -214,7 +312,13 @@ def main():
                         chart_ph.plotly_chart(fig, use_container_width=True)
 
                 draw_img = frame_rgb.copy()
-                for (x, y, w, h) in cached_faces:
+                
+                for i, (x, y, w, h) in enumerate(cached_faces):
+                    if show_heatmap and i < len(cached_heatmaps) and cached_heatmaps[i] is not None:
+                         roi_color = draw_img[y:y+h, x:x+w]
+                         roi_mixed = cv2.addWeighted(roi_color, 0.6, cached_heatmaps[i], 0.4, 0)
+                         draw_img[y:y+h, x:x+w] = roi_mixed
+
                     color = (0, 255, 0)
                     if cached_preds:
                         best = max(cached_preds, key=cached_preds.get)
