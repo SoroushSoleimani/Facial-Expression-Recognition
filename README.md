@@ -6,18 +6,18 @@ K. N. Toosi University of Technology - Artificial Intelligence Course Project
 
 ## Table of Contents
 
-- [📖 Overview](#-overview)
-- [🚀 Features](#-features)
-- [📂 Project Structure](#-project-structure)
-- [⚙️ Installation & Usage](#️-installation--usage)
-- [📥 Data Acquisition & Preparation](#-data-acquisition--preparation)
-- [🧠 Model Architecture & Training Strategy](#-model-architecture--training-strategy)
-- [📊 Evaluation & Results](#-evaluation--results)
-- [💻 Interactive Web Interface (Demo)](#-interactive-web-interface-demo)
-- [⚠️ Important Notes](#️-important-notes)
-- [👥 Authors & Contact](#-authors--contact)
+- [ Overview](#-overview)
+- [ Features](#-features)
+- [ Project Structure](#-project-structure)
+- [ Installation & Usage](#️-installation--usage)
+- [ Data Acquisition & Preparation](#-data-acquisition--preparation)
+- [ Model Architecture & Training Strategy](#-model-architecture--training-strategy)
+- [ Evaluation & Results](#-evaluation--results)
+- [ Interactive Web Interface (Demo)](#-interactive-web-interface-demo)
+- [ Important Notes](#️-important-notes)
+- [ Authors & Contact](#-authors--contact)
 
-## 📖 Overview
+##  Overview
 
 This project addresses the challenge of classifying human facial expressions into **8 distinct categories**: **Angry, Contempt, Disgust, Fear, Happy, Neutral, Sad, and Surprise**. Using a custom-built Convolutional Neural Network (CNN) trained on the **FERPlus** dataset, the system is designed to be robust against variations in lighting and head poses, making it highly suitable for real-time applications.
 
@@ -47,7 +47,7 @@ The project is structured into two main phases, simulating a real-world AI devel
 
 - **Real-time Inference**: Providing a webcam-based demo for live emotion tracking.
 
-## 🚀 Features
+##  Features
 
 - **End-to-End Pipeline:** A complete workflow converting raw pixel data into one of **8 emotion categories** (Angry, Contempt, Disgust, Fear, Happy, Neutral, Sad, Surprise).
 - **Interactive Web Interface:** A user-friendly dashboard built with **Streamlit**, supporting both **Live Webcam** feed and **Image Upload**.
@@ -56,7 +56,7 @@ The project is structured into two main phases, simulating a real-world AI devel
 - **Robust Preprocessing:** resizing (48x48), grayscale conversion, and normalization.
 - **Modular Design:** Structured codebase separating training logic, model architecture, and the frontend interface.
 
-## 📂 Project Structure
+##  Project Structure
 
 ```bash
 ├── data/
@@ -124,7 +124,7 @@ Once launched, you will see a menu to select the desired operation:
 | **3**  | **[Demo]**      | Launches the **Streamlit Web Interface** for real-time webcam testing and visualization.                 |
 | **0**  | **Exit**        | Closes the application.                                                                                  |
 
-## 📥 Data Acquisition & Preparation
+##  Data Acquisition & Preparation
 
 The project features a fully automated data pipeline managed by `src/data_preparation/data_preparation.py`. Instead of manual downloads, the script executes a robust four-step workflow:
 
@@ -133,7 +133,7 @@ The project features a fully automated data pipeline managed by `src/data_prepar
 3.  **Noise Injection:** To simulate real-world "dirty data" challenges, the pipeline deliberately introduces synthetic errors such as label typos, missing values, and invalid IDs.
 4.  **Data Cleaning:** Performs rigorous validation to remove corrupted entries and mismatched labels, ultimately generating a reliable `dataset_cleaned.csv` which serves as the ground truth for all subsequent training phases.
 
-## 🧠 Model Architecture & Training Strategy
+##  Model Architecture & Training Strategy
 
 The project pipeline consists of three core stages implemented in the `src/` directory:
 
@@ -160,18 +160,18 @@ The model is optimized using **Adam** with **Categorical Cross-Entropy** loss, u
 - **EarlyStopping:** Halts training if loss stagnates (Patience: 8).
 - **ReduceLROnPlateau:** Reduces learning rate by factor of 0.2 when validation improvement slows down.
 
-## 📊 Evaluation & Results
+##  Evaluation & Results
 
 We employ a comprehensive set of metrics including **Accuracy, Weighted F1-Score, and Confusion Matrices** to rigorously assess model performance across all 8 emotion classes.
 
 - **Training Analysis:** Loss and Accuracy curves are plotted to monitor convergence and detect overfitting or underfitting issues.
 - **Detailed Reports:** For full visual analysis, including **ROC Curves and Heatmaps**, please refer to the Jupyter Notebooks in the `notebooks/` directory:
-  - [📈 Training Viz](notebooks/Visualizing%20during%20training.ipynb)
-  - [🧪 Model Evaluation](notebooks/evaluation.ipynb)
-  - [🧹 Data Preparation](notebooks/data_preparation.ipynb)
-  - [📊 EDA Analysis](notebooks/EDA.ipynb)
+  - [ Training Viz](notebooks/Visualizing%20during%20training.ipynb)
+  - [ Model Evaluation](notebooks/evaluation.ipynb)
+  - [ Data Preparation](notebooks/data_preparation.ipynb)
+  - [ EDA Analysis](notebooks/EDA.ipynb)
 
-## 💻 Interactive Web Interface (Demo)
+##  Interactive Web Interface (Demo)
 
 The project features a polished, user-friendly web application built with **Streamlit**, designed to demonstrate the model's capabilities in real-time.
 
@@ -194,7 +194,7 @@ streamlit run app.py
 
 ![Web Interface Demo](results/demo_interface.png)
 
-## ⚠️ Important Notes
+##  Important Notes
 
 ### 1. Face Detection Dependency
 
@@ -212,7 +212,7 @@ The real-time demo relies on **OpenCV Haar Cascades** for face detection.
 
 All scripts (e.g., `main.py`, `app.py`) are designed to be run from the **project root directory**. Running them from inside subfolders (like `src/`) may cause `FileNotFoundError` for models or data config files.
 
-## 👥 Authors & Contact
+##  Authors & Contact
 
 This project was developed by a **3-member team** for the **Artificial Intelligence Course (Fall 2024)** at **K. N. Toosi University of Technology**.
 
