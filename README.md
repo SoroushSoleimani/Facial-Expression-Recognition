@@ -227,4 +227,4 @@ This project was developed by a **3-member team** for the **Artificial Intellige
 
 ---
 
-**Acknowledgment:** Special thanks to **Dr. Pishgoo** for their guidance and supervision throughout this project.
+**Acknowledgment:** Special thanks to **Dr. Pishgoo** and **Eng.Alireza Ghorbani** for their guidance and supervision throughout this project.
