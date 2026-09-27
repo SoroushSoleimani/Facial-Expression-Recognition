@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Facial Expression Recognition — Soroush Soleimani</title>
+<meta name="description" content="A deep learning pipeline for real-time facial emotion detection using the FERPlus dataset, with Grad-CAM explainability and a Streamlit demo." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2240%22 fill=%22%230a0e14%22/><circle cx=%2250%22 cy=%2250%22 r=%2216%22 fill=%22%235eead4%22/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e14; --bg-raised:#0d1219; --line:#1c2530;
+    --text:#e6e8eb; --text-dim:#8792a1; --text-faint:#4a5568;
+    --mint:#5eead4; --mint-dim:#2f5a53; --amber:#f5a962;
+    --mono:'JetBrains Mono', ui-monospace, monospace;
+    --sans:'Inter', system-ui, sans-serif;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth; scroll-padding-top:env(safe-area-inset-top,0px);}
+  body{margin:0; background:var(--bg); color:var(--text); font-family:var(--sans); -webkit-font-smoothing:antialiased; line-height:1.6;}
+  @media (prefers-reduced-motion: reduce){ *{animation-duration:.001ms !important; transition-duration:.001ms !important;} }
+  a{color:inherit;}
+  .wrap{max-width:760px; margin:0 auto; padding:0 24px;}
+
+  .bg-grid{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:linear-gradient(rgba(94,234,212,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(94,234,212,0.045) 1px, transparent 1px);
+    background-size:42px 42px;
+    mask-image:radial-gradient(ellipse 900px 600px at 50% 0%, black, transparent 75%);
+    -webkit-mask-image:radial-gradient(ellipse 900px 600px at 50% 0%, black, transparent 75%);
+  }
+  header.nav, main, footer{position:relative; z-index:1;}
+
+  header.nav{
+    position:sticky; top:0; z-index:50; background:rgba(10,14,20,0.86); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line); padding-top:env(safe-area-inset-top,0px);
+  }
+  .nav-inner{max-width:760px; margin:0 auto; padding:16px 24px; display:flex; align-items:center; justify-content:space-between; font-family:var(--mono); font-size:13px;}
+  .nav-id{display:flex; align-items:center; gap:8px; font-weight:600;}
+  .dot{width:7px; height:7px; border-radius:50%; background:var(--mint); box-shadow:0 0 8px var(--mint); flex:none;}
+  .nav-back{color:var(--text-dim); text-decoration:none; transition:color .15s ease;}
+  .nav-back:hover{color:var(--mint);}
+
+  .hero{padding:64px 0 48px; border-bottom:1px solid var(--line);}
+  .breadcrumb{font-family:var(--mono); font-size:12px; color:var(--text-faint); margin-bottom:20px;}
+  .breadcrumb a{color:var(--text-dim); text-decoration:none;}
+  .breadcrumb a:hover{color:var(--mint);}
+  .hero-kicker{font-family:var(--mono); font-size:13px; color:var(--mint); display:flex; align-items:center; gap:10px; margin-bottom:20px;}
+  h1.hero-title{font-family:var(--mono); font-size:clamp(26px,5.5vw,38px); line-height:1.2; font-weight:700; letter-spacing:-0.01em; margin:0 0 18px; max-width:20ch;}
+  .hero-lede{font-size:16.5px; color:var(--text-dim); max-width:60ch; margin:0 0 28px;}
+  .hero-lede .em{color:var(--text); font-weight:600;}
+  .hero-links{display:flex; flex-wrap:wrap; gap:12px; margin-bottom:36px;}
+  .pill{font-family:var(--mono); font-size:13px; border:1px solid var(--line); padding:9px 16px; border-radius:5px; text-decoration:none; transition:border-color .15s ease, color .15s ease, transform .15s ease; display:inline-flex; align-items:center; gap:8px;}
+  .pill:hover{border-color:var(--mint); color:var(--mint); transform:translateY(-2px);}
+  .pill.primary{background:var(--mint); color:#04231e; border-color:var(--mint); font-weight:600;}
+  .pill.primary:hover{background:#7ff2df; color:#04231e;}
+
+  .stat-line{display:flex; flex-wrap:wrap; border:1px solid var(--line); border-radius:6px; overflow:hidden; font-family:var(--mono); font-size:13px;}
+  .stat{flex:1 1 110px; padding:14px 16px; border-right:1px solid var(--line);}
+  .stat:last-child{border-right:none;}
+  .stat-num{color:var(--mint); font-size:18px; font-weight:700; display:block; margin-bottom:2px;}
+  .stat-label{color:var(--text-faint); font-size:11px;}
+
+  section{padding:56px 0; border-bottom:1px solid var(--line);}
+  .sec-head{display:flex; align-items:baseline; gap:12px; margin-bottom:30px;}
+  .sec-num{font-family:var(--mono); color:var(--text-faint); font-size:14px;}
+  h2{font-family:var(--mono); font-size:20px; margin:0; font-weight:600; letter-spacing:-0.01em;}
+  .body-text{max-width:64ch; color:var(--text-dim); font-size:15.5px;}
+  .body-text p{margin:0 0 16px;}
+  .body-text p:last-child{margin-bottom:0;}
+  .body-text .em{color:var(--text);}
+
+  /* demo image */
+  .demo-frame{border:1px solid var(--line); border-radius:8px; overflow:hidden; margin-bottom:14px; background:var(--bg-raised);}
+  .demo-frame img{display:block; width:100%; height:auto;}
+  .demo-caption{font-family:var(--mono); font-size:12px; color:var(--text-faint);}
+  .demo-note{
+    margin-top:18px; padding:14px 16px; border:1px solid var(--line); border-radius:6px;
+    background:rgba(245,169,98,0.05); font-size:13.5px; color:var(--text-dim); display:flex; gap:10px; align-items:flex-start;
+  }
+  .demo-note .amber-dot{width:6px; height:6px; border-radius:50%; background:var(--amber); flex:none; margin-top:6px;}
+
+  /* pipeline steps */
+  .pipeline{border:1px solid var(--line); border-radius:8px; overflow:hidden;}
+  .pstep{display:grid; grid-template-columns:36px 1fr; gap:16px; padding:20px; border-bottom:1px solid var(--line);}
+  .pstep:last-child{border-bottom:none;}
+  .pnum{font-family:var(--mono); color:var(--mint); font-size:14px; font-weight:700;}
+  .pstep h3{font-family:var(--mono); font-size:14.5px; margin:0 0 6px; color:var(--text);}
+  .pstep p{margin:0; font-size:14px; color:var(--text-dim);}
+
+  /* emotion classes grid */
+  .emotion-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(110px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:8px; overflow:hidden;}
+  .emotion-cell{background:var(--bg); padding:18px 12px; text-align:center; font-family:var(--mono); font-size:13px; color:var(--text-dim); transition:background .15s ease, color .15s ease;}
+  .emotion-cell:hover{background:var(--bg-raised); color:var(--mint);}
+
+  /* architecture compare */
+  .arch-grid{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:8px; overflow:hidden;}
+  .arch-cell{background:var(--bg); padding:22px;}
+  .arch-cell h3{font-family:var(--mono); font-size:14px; color:var(--mint); margin:0 0 12px;}
+  .arch-cell ul{margin:0; padding:0; list-style:none; font-size:13.5px; color:var(--text-dim);}
+  .arch-cell li{padding:4px 0; padding-left:14px; position:relative;}
+  .arch-cell li::before{content:"—"; position:absolute; left:0; color:var(--text-faint);}
+  @media (max-width:560px){ .arch-grid{grid-template-columns:1fr;} }
+
+  .tech-row{display:flex; flex-wrap:wrap; gap:10px; margin-top:20px;}
+  .tech-chip{font-family:var(--mono); font-size:12px; color:var(--text-dim); border:1px solid var(--line); padding:6px 12px; border-radius:20px;}
+
+  .contact-grid{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:8px; overflow:hidden;}
+  .contact-cell{background:var(--bg); padding:20px; text-decoration:none; transition:background .15s ease;}
+  .contact-cell:hover{background:var(--bg-raised);}
+  .contact-cell .label{font-family:var(--mono); font-size:11px; color:var(--text-faint); margin-bottom:6px;}
+  .contact-cell .value{font-family:var(--mono); font-size:14px; color:var(--mint); word-break:break-word;}
+  @media (max-width:520px){ .contact-grid{grid-template-columns:1fr;} }
+
+  footer{padding:28px 0; text-align:center; font-family:var(--mono); font-size:12px; color:var(--text-faint);}
+  ::selection{background:var(--mint-dim); color:#fff;}
+  a:focus-visible, button:focus-visible{outline:2px solid var(--mint); outline-offset:2px;}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+
+<header class="nav">
+  <div class="nav-inner">
+    <div class="nav-id"><span class="dot"></span> soroush.dev</div>
+    <a class="nav-back" href="https://soroushsoleimani.github.io/">← back to portfolio</a>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero">
+    <div class="breadcrumb"><a href="https://github.com/SoroushSoleimani" target="_blank" rel="noopener">SoroushSoleimani</a> / Facial-Expression-Recognition</div>
+    <div class="hero-kicker"><span class="dot" style="box-shadow:none;"></span> computer vision · deep learning</div>
+    <h1 class="hero-title">Facial Expression Recognition</h1>
+    <p class="hero-lede">
+      A complete computer vision pipeline that classifies human facial expressions into
+      <span class="em">8 emotion categories</span>, from raw pixels to an interactive Grad-CAM
+      explainability demo — built as an AI course project at K. N. Toosi University of Technology.
+    </p>
+    <div class="hero-links">
+      <a class="pill primary" href="https://github.com/SoroushSoleimani/Facial-Expression-Recognition" target="_blank" rel="noopener">view source ↗</a>
+      <a class="pill" href="#demo">see the demo</a>
+      <a class="pill" href="#architecture">model architecture</a>
+    </div>
+    <div class="stat-line">
+      <div class="stat"><span class="stat-num">8</span><span class="stat-label">emotion classes</span></div>
+      <div class="stat"><span class="stat-num">48×48</span><span class="stat-label">input resolution</span></div>
+      <div class="stat"><span class="stat-num">5</span><span class="stat-label">stars</span></div>
+      <div class="stat"><span class="stat-num">2</span><span class="stat-label">forks</span></div>
+    </div>
+  </section>
+
+  <section id="demo">
+    <div class="sec-head"><span class="sec-num">01</span><h2>the demo</h2></div>
+    <div class="demo-frame">
+      <img src="https://github.com/SoroushSoleimani/Facial-Expression-Recognition/raw/main/results/demo_interface.png" alt="Screenshot of the Streamlit web interface showing live webcam emotion detection with Grad-CAM heatmap and probability chart" loading="lazy" />
+    </div>
+    <div class="demo-caption">the Streamlit interface — live webcam feed, Grad-CAM heatmap, and per-class probability chart</div>
+    <div class="demo-note">
+      <span class="amber-dot"></span>
+      <span>This is a Streamlit app, so it runs locally rather than as a static web page. Clone the repo and run <code style="color:var(--mint); font-family:var(--mono);">streamlit run app.py</code> to try it with your own webcam.</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h2>what it detects</h2></div>
+    <p class="body-text" style="margin-bottom:24px;">
+      Trained on the <span class="em">FERPlus</span> dataset, the model classifies grayscale
+      48×48 face crops into one of eight expressions:
+    </p>
+    <div class="emotion-grid">
+      <div class="emotion-cell">Angry</div>
+      <div class="emotion-cell">Contempt</div>
+      <div class="emotion-cell">Disgust</div>
+      <div class="emotion-cell">Fear</div>
+      <div class="emotion-cell">Happy</div>
+      <div class="emotion-cell">Neutral</div>
+      <div class="emotion-cell">Sad</div>
+      <div class="emotion-cell">Surprise</div>
+    </div>
+  </section>
+
+  <section id="architecture">
+    <div class="sec-head"><span class="sec-num">03</span><h2>pipeline</h2></div>
+    <div class="pipeline">
+      <div class="pstep">
+        <span class="pnum">01</span>
+        <div><h3>Data acquisition &amp; cleaning</h3><p>Auto-downloads FERPlus via Kaggle's <code style="font-family:var(--mono);">kagglehub</code>, deliberately injects noisy labels to simulate real-world data, then validates and produces a clean, trustworthy training set.</p></div>
+      </div>
+      <div class="pstep">
+        <span class="pnum">02</span>
+        <div><h3>Preprocessing &amp; augmentation</h3><p>Resizes to 48×48 grayscale, normalizes pixel values, and augments with rotation, zoom, shifts, and horizontal flips to improve generalization.</p></div>
+      </div>
+      <div class="pstep">
+        <span class="pnum">03</span>
+        <div><h3>Model training</h3><p>Two CNN architectures trained with Adam and categorical cross-entropy, using early stopping and learning-rate reduction on plateau.</p></div>
+      </div>
+      <div class="pstep">
+        <span class="pnum">04</span>
+        <div><h3>Evaluation</h3><p>Accuracy, weighted F1-score, and confusion matrices across all 8 classes, with full visual reports in the project notebooks.</p></div>
+      </div>
+      <div class="pstep">
+        <span class="pnum">05</span>
+        <div><h3>Interactive deployment</h3><p>A Streamlit interface with live webcam and image upload, Grad-CAM heatmaps, and real-time Plotly probability charts.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">04</span><h2>two models, benchmarked</h2></div>
+    <div class="arch-grid">
+      <div class="arch-cell">
+        <h3>baseline model</h3>
+        <ul>
+          <li>3 standard convolutional blocks</li>
+          <li>Lightweight, fast to train</li>
+          <li>Used to establish a performance floor</li>
+        </ul>
+      </div>
+      <div class="arch-cell">
+        <h3>final model</h3>
+        <ul>
+          <li>Deeper VGG-style architecture</li>
+          <li>Double convolutions + batch normalization</li>
+          <li>L2 regularization, dropout 0.2 → 0.5</li>
+        </ul>
+      </div>
+    </div>
+    <div class="tech-row">
+      <span class="tech-chip">Python</span>
+      <span class="tech-chip">TensorFlow / Keras</span>
+      <span class="tech-chip">OpenCV Haar Cascades</span>
+      <span class="tech-chip">Grad-CAM</span>
+      <span class="tech-chip">Streamlit</span>
+      <span class="tech-chip">Plotly</span>
+    </div>
+  </section>
+
+  <section style="border-bottom:none;">
+    <div class="sec-head"><span class="sec-num">05</span><h2>run it yourself</h2></div>
+    <p class="body-text" style="margin-bottom:20px;">
+      The whole lifecycle — data prep, training, and demo — runs through a single CLI menu.
+    </p>
+    <div class="pipeline" style="margin-bottom:28px;">
+      <div class="pstep" style="grid-template-columns:1fr;">
+        <div>
+          <p style="font-family:var(--mono); font-size:13.5px; color:var(--text); margin:0 0 8px;">git clone https://github.com/SoroushSoleimani/Facial-Expression-Recognition.git</p>
+          <p style="font-family:var(--mono); font-size:13.5px; color:var(--text); margin:0 0 8px;">pip install -r requirements.txt</p>
+          <p style="font-family:var(--mono); font-size:13.5px; color:var(--text); margin:0;">python main.py</p>
+        </div>
+      </div>
+    </div>
+    <div class="contact-grid">
+      <a class="contact-cell" href="https://github.com/SoroushSoleimani/Facial-Expression-Recognition" target="_blank" rel="noopener">
+        <div class="label">source code</div>
+        <div class="value">github.com/…/Facial-Expression-Recognition</div>
+      </a>
+      <a class="contact-cell" href="https://soroushsoleimani.github.io/" target="_blank" rel="noopener">
+        <div class="label">more projects</div>
+        <div class="value">soroushsoleimani.github.io</div>
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  built by Soroush Soleimani, Parham Kootzari &amp; AmirHossein Babaee · K. N. Toosi University of Technology
+</footer>
+
+</body>
+</html>
